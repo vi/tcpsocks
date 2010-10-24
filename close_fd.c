@@ -5,10 +5,12 @@ static void close_fd(int fd) {
     close(fdinfo[fd].peerfd);
     if (fdinfo[fd].buff) {
 	free(fdinfo[fd].buff);
+	fdinfo[fd].buff=NULL;
 	fdinfo[fd].debt=0;
     }
     if (fdinfo[fdinfo[fd].peerfd].buff) {
 	free(fdinfo[fdinfo[fd].peerfd].buff);
+	fdinfo[fdinfo[fd].peerfd].buff=NULL;
 	fdinfo[fdinfo[fd].peerfd].debt=0;
     }
     fdinfo[fd].group=0;
