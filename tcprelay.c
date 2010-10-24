@@ -6,6 +6,8 @@
  *
  * Out-of-band data is not processed.
  * Half-shutdown connections are expected to work properly.
+ *
+ * It also supports retrieving destination address with SO_ORIGINAL_DST
  */
 
 #include <stdio.h>
@@ -20,7 +22,7 @@
 #include <string.h>
 #include <netinet/in.h>
 
-#define MAXFD 4096		/* Not checked for overflow anywhere */
+#define MAXFD 1024		/* Not checked for overflow anywhere */
 static char buf[65536];
 #define MAX_EPOLL_EVENTS_AT_ONCE 1024 /* even 1 should work more-or-less fine */
 
@@ -53,6 +55,9 @@ const char *bind_ip;
 int bind_port;
 const char *connect_ip;
 int connect_port;
+
+int need_address_redirection;
+int need_port_redirection;
 
 
 static void parse_argv(int argc, char* argv[]); 

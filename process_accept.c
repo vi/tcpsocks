@@ -12,9 +12,29 @@ static void process_accept(int ss) {
     fcntl(client, F_SETFL, O_NONBLOCK);
 
     memset(&da, 0, sizeof da);
+#ifndef SO_ORIGINAL_DST
+#define SO_ORIGINAL_DST 80
+#endif
+    if (need_address_redirection || need_port_redirection) {
+	len = sizeof da;
+	if (getsockopt
+	    (client, SOL_IP, SO_ORIGINAL_DST,
+	     (struct sockaddr *) &da, &len) != 0) {
+	    write(client, "Unable to get destination address\n", 34);
+	    close(client);
+	    printf("%s:%d -> ???\n", inet_ntoa(sa.sin_addr),
+		   ntohs(sa.sin_port));
+	    return;
+	}
+    }
+
     da.sin_family = PF_INET;
-    da.sin_port = htons(connect_port);
-    inet_aton(connect_ip, &da.sin_addr);
+    if (!need_port_redirection) {
+	da.sin_port = htons(connect_port);
+    }
+    if (!need_address_redirection) {
+	inet_aton(connect_ip, &da.sin_addr);
+    }
 
 
     /* Now start connecting to the peer */
@@ -22,6 +42,14 @@ static void process_accept(int ss) {
     int destsocket = socket(PF_INET, SOCK_STREAM, 0);
     if (destsocket == -1) {
 	const char* msg = "Cannot create a socket to destination address.\n";
+
+	if(need_port_redirection || need_address_redirection) {
+	    msg = "Cannot create a socket to destination address.\n"
+		"If you are using REDIRECT feature, you should not connect here directly.\n"
+		"Also check you iptables rule. It should not redirect tcprelay's connections back to tcprelay. Normal example:\n"
+		"\"iptables -t nat -A OUTPUT -p tcp -m owner ! --uid-owner tcprelay_user -j REDIRECT --to tcprelay_port\"\n";
+	}
+
 	write(client, msg, strlen(msg));
 	close(client);
 	fprintf(stderr, "%s", msg);
