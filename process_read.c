@@ -37,6 +37,7 @@ recv_was_interrupted:
 	    return;
 	}
     } else {
+	fdinfo[fd].total_read += ret;
 send_was_interrupted:
 	ret2 = send(fdinfo[fd].peerfd, &buf, ret, 0);
 	dpf("    sent %d bytes\n", ret2);

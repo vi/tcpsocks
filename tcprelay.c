@@ -51,6 +51,7 @@ struct {
     struct sockaddr_in address;
     char* buff; // "inbox", allocated only in case of a short write to this socket.
     int debt; // length of buff.
+    long long total_read;
 } static fdinfo[MAXFD] = { [0 ... MAXFD - 1] = {0, 0, 0}};
 
 
