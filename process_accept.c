@@ -95,6 +95,7 @@ static void process_accept(int ss) {
     fdinfo[client].debt=0;
     fdinfo[client].we_should_epoll_for_writes=1;  /* we've already set up epoll above */
     fdinfo[client].we_should_epoll_for_reads=0; /* first we get writing ready, only then start reading peer */
+    fdinfo[client].group='c';
     fdinfo[destsocket].peerfd = client;
     fdinfo[destsocket].status='|';
     fdinfo[destsocket].address=da;
@@ -104,6 +105,7 @@ static void process_accept(int ss) {
     fdinfo[destsocket].debt=0;
     fdinfo[destsocket].we_should_epoll_for_writes=1; /* we've already set up epoll above */
     fdinfo[destsocket].we_should_epoll_for_reads=0;  /* first we get writing ready, only then start reading peer */ 
+    fdinfo[destsocket].group='d';
     
     printf("%s:%d -> %s:%d [%d->%d]\n", inet_ntoa(sa.sin_addr),
 	   ntohs(sa.sin_port), inet_ntoa(da.sin_addr),

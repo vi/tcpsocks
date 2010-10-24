@@ -42,6 +42,12 @@ struct {
        r - we can only recv (half-shutdown)
        . - closed
      */   
+    char group;
+    /*
+	Groups:
+	c - incoming connection
+	d - outgoing connection
+     */
     struct sockaddr_in address;
     char* buff; // "inbox", allocated only in case of a short write to this socket.
     int debt; // length of buff.

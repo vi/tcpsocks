@@ -11,4 +11,6 @@ static void close_fd(int fd) {
 	free(fdinfo[fdinfo[fd].peerfd].buff);
 	fdinfo[fdinfo[fd].peerfd].debt=0;
     }
+    fdinfo[fd].group=0;
+    fdinfo[fdinfo[fd].peerfd].group=0;
 }
