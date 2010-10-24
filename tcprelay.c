@@ -74,6 +74,7 @@ static void process_accept(int ss); // new client connects. Need to connect to t
 static void listen_socket_and_setup_epoll(); // setup main socket to listen (and add it to epoll)
 static void close_fd(int fd); // close both fd and peer fd. Clean up debt buffers and fdinfo states.
 static void epoll_update(int fd); // call epoll_ctl for this fd accroding to we_should_epoll_for_* fields.
+static void process_stdin();
 #include "process_read.c"
 #include "process_debt.c"
 #include "process_accept.c"
@@ -81,6 +82,7 @@ static void epoll_update(int fd); // call epoll_ctl for this fd accroding to we_
 #include "listen_socket_and_setup_epoll.c"
 #include "close_fd.c"
 #include "epoll_update.c"
+#include "process_stdin.c"
 
 
 int main(int argc, char *argv[])
@@ -107,6 +109,10 @@ int main(int argc, char *argv[])
 	    if (events[n].data.fd == ss) {
 
 		process_accept(ss);
+
+	    } else if (events[n].data.fd == 0) {
+		
+                process_stdin();
 
 	    } else { /* Handling the sends and recvs here */
 

@@ -41,4 +41,10 @@ static void listen_socket_and_setup_epoll() {
 	perror("epoll_ctl: listen_sock");
 	exit(EXIT_FAILURE);
     }
+
+    ev.events = EPOLLIN;
+    ev.data.fd = 0;
+    if (epoll_ctl(kdpfd, EPOLL_CTL_ADD, 0, &ev) == -1) {
+	perror("epoll_ctl: stdin");
+    }
 }
