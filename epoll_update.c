@@ -11,6 +11,11 @@ static void epoll_update(int fd) {
     struct epoll_event ev;
     memset(&ev, 0, sizeof ev);
     ev.events = EPOLLONESHOT;
+
+    if (fdinfo[fd].status=='.' || fdinfo[fd].status==0) {
+	fprintf(stderr, "Bad epoll_update on fd %d with status '%c'\n", fd, fdinfo[fd].status);
+	return;
+    }
     
     dpf(epoll_update_msgs[fdinfo[fd].we_should_epoll_for_reads + 2*fdinfo[fd].we_should_epoll_for_writes], fd);
 

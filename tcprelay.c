@@ -119,6 +119,11 @@ int main(int argc, char *argv[])
 		int fd = events[n].data.fd;
 		int ev = events[n].events;
 
+		if(fd < 0 || fd >= MAXFD) {
+		    fprintf(stderr, "BAD FD %d\n", fd);
+		    continue;
+		}
+
                 if (fdinfo[fd].status=='.') {
 		    continue; /* happens when fails to connect */
 		}
