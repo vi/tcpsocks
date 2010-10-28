@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
 		if (ev & (EPOLLERR|EPOLLHUP) ) {
 		    dpf("%d HUP or ERR\n", fd);
 		    dpf("    %d and %d are to be closed\n", fd, fdinfo[fd].peerfd);
-		    fdinfo[fd].status='.';
+		    close_fd(fd);
 		}
 
 		if(fdinfo[fd].readready && 
@@ -159,10 +159,6 @@ int main(int argc, char *argv[])
 			(fdinfo[fd].status=='|' || fdinfo[fd].status=='s') ) {
 
 		    process_debt(fd);
-		}
-
-		if (fdinfo[fd].status=='.') {
-		    close_fd(fd);
 		}
 	    }
 	} 

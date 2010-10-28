@@ -11,7 +11,7 @@ send_was_interrupted2:
     dpf("    sent %d bytes\n", ret);
     if (ret == 0) {
 	fprintf(stderr, "send returned 0? Submit to codinghorror?\n");
-	fdinfo[fd].status='.';
+	close_fd(fd);
 	return;
     } else
     if (ret < 0) {
@@ -23,7 +23,7 @@ send_was_interrupted2:
 	} else {
 	    fprintf(stderr, "Why epoll hasn't told us that there would be error at sending?\n");
 	    perror("send");
-	    fdinfo[fd].status='.';
+	    close_fd(fd);
 	    return;
 	}
     } else {
@@ -34,7 +34,7 @@ send_was_interrupted2:
 	    char* b = (char*)malloc(l);
 	    if (b == NULL) {
 		perror("malloc");
-		fdinfo[fd].status='.';
+		close_fd(fd);
 		return;
 	    }
 	    memcpy(b, fdinfo[fd].buff + ret, l);

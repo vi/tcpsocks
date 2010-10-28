@@ -19,7 +19,7 @@ recv_was_interrupted:
 		break;
 	    case 'r':
 		dpf("    %d and %d are to be closed\n", fd, fdinfo[fd].peerfd);
-		fdinfo[fd].status='.'; // Close if cannot both send and recv
+		close_fd(fd); // Close if cannot both send and recv
 		break; 
 	}
 	return;
@@ -34,7 +34,7 @@ recv_was_interrupted:
 	} else {
 	    fprintf(stderr, "Why epoll hasn't told us that there is some error?\n");
 	    perror("recv");
-	    fdinfo[fd].status='.';
+	    close_fd(fd);
 	    return;
 	}
     } else {
@@ -44,7 +44,7 @@ send_was_interrupted:
 	dpf("    sent %d bytes\n", ret2);
 	if (ret2 == 0) {
 	    fprintf(stderr, "send returned 0? Submit to codinghorror?\n");
-	    fdinfo[fd].status='.';
+	    close_fd(fd);
 	    return;
 	}
 	if (ret2 < 0) {
@@ -56,7 +56,7 @@ send_was_interrupted:
 	    } else {
 		fprintf(stderr, "Why epoll hasn't told us that there would be error at sending?\n");
 		perror("send");
-		fdinfo[fd].status='.';
+		close_fd(fd);
 		return;
 	    }
 	}
@@ -68,7 +68,7 @@ send_was_interrupted:
 	    char* b = (char*)malloc(l);
 	    if (b == NULL) {
 		perror("malloc");
-		fdinfo[fd].status='.';
+		close_fd(fd);
 		return;
 	    }
 	    memcpy(b, buf + ret2, l);
