@@ -4,7 +4,6 @@
 void process_debt(int fd) {
     /* After a short write, we finally can deliver the "debt" */
     ssize_t ret;
-    char buf[BUFSIZE];
     dpf("Selecting %d for writing because of debt %d\n", fd, fdinfo[fd].debt);
 send_was_interrupted2:
     ret = send(fd, fdinfo[fd].buff, fdinfo[fd].debt, 0);
