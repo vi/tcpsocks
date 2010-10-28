@@ -3,6 +3,7 @@ static void process_accept(int ss) {
     /* Accepting the client socket */
     struct sockaddr_in sa, da; 
     struct epoll_event ev;
+    memset(&ev, 0, sizeof ev);
     size_t len = sizeof sa;
     int client = accept(ss, (struct sockaddr *) &sa, &len);
     if (client < 0) {

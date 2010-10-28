@@ -30,6 +30,7 @@ static void listen_socket_and_setup_epoll() {
 
     /* epoll setup */
     struct epoll_event ev;
+    memset(&ev, 0, sizeof ev);
     kdpfd = epoll_create(4);
     if (kdpfd == -1) {
 	perror("epoll_create");

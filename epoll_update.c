@@ -9,6 +9,7 @@ static const char* __attribute__((unused)) epoll_update_msgs[] = {
 
 static void epoll_update(int fd) {
     struct epoll_event ev;
+    memset(&ev, 0, sizeof ev);
     ev.events = EPOLLONESHOT;
     
     dpf(epoll_update_msgs[fdinfo[fd].we_should_epoll_for_reads + 2*fdinfo[fd].we_should_epoll_for_writes], fd);
