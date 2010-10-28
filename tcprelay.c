@@ -23,7 +23,7 @@
 #include <netinet/in.h>
 
 #define MAXFD 1024		/* Not checked for overflow anywhere */
-static char buf[65536];
+#define BUFSIZE 65536
 #define MAX_EPOLL_EVENTS_AT_ONCE 1024 /* even 1 should work more-or-less fine */
 
 #define dpf(...) //fprintf (stderr, __VA_ARGS__)
