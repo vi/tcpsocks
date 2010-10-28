@@ -22,6 +22,6 @@ static void epoll_update(int fd) {
     ev.data.fd = fd;
     int ret = epoll_ctl(kdpfd, EPOLL_CTL_MOD, fd, &ev);
     if(ret<0) {
-	perror("epoll_ctl MOD");
+	fprintf(stderr, "epoll_ctl MOD error errno=%d\n", errno);
     }
 }
