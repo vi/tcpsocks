@@ -90,7 +90,7 @@ static void process_accept(int ss) {
     fdinfo[client].group='c';
     fdinfo[client].total_read = 0;
     fdinfo[destsocket].peerfd = client;
-    fdinfo[destsocket].status='S';
+    fdinfo[destsocket].status='1';
     fdinfo[destsocket].address=da;
     fdinfo[destsocket].writeready=0;
     fdinfo[destsocket].readready=0;

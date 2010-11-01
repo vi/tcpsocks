@@ -39,9 +39,9 @@ struct {
        States:
        C - connected client
 
-       S - pending connection to SOCKS5 server
-       0 - sent response
-       1 - got auth method choice response
+       1 - pending connection to SOCKS5 server
+       2 - sent response
+       3 - got auth method choice response
 
        | - bidirectional connected peer
        s - we can only send (half-shutdown)
@@ -182,19 +182,19 @@ int main(int argc, char *argv[])
 		}
 		
 		if(fdinfo[fd].readready && 
-			(fdinfo[fd].status=='S') ) {
+			(fdinfo[fd].status=='1') ) {
 
 		    process_socks_phase_1(fd);
 		}
 		
 		if(fdinfo[fd].readready && 
-			(fdinfo[fd].status=='0') ) {
+			(fdinfo[fd].status=='2') ) {
 
 		    process_socks_phase_2(fd);
 		}
 		
 		if(fdinfo[fd].readready && 
-			(fdinfo[fd].status=='1') ) {
+			(fdinfo[fd].status=='3') ) {
 
 		    process_socks_phase_3(fd);
 		}
