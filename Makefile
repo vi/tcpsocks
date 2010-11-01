@@ -1,4 +1,4 @@
-all: tcprelay
+all: tcpsocks
 
-tcprelay: *.c
-		gcc -O2 tcprelay.c -o tcprelay
+tcpsocks: *.c
+		gcc -O2 tcpsocks.c -o tcpsocks
