@@ -37,6 +37,12 @@ struct {
     char status; 
     /*
        States:
+       C - connected client
+
+       S - pending connection to SOCKS5 server
+       0 - sent response
+       1 - got auth method choice response
+
        | - bidirectional connected peer
        s - we can only send (half-shutdown)
        r - we can only recv (half-shutdown)

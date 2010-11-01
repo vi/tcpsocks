@@ -1,7 +1,7 @@
 
 static void process_accept(int ss) {
     /* Accepting the client socket */
-    struct sockaddr_in sa, da; 
+    struct sockaddr_in sa, da, ca; 
     struct epoll_event ev;
     memset(&ev, 0, sizeof ev);
     size_t len = sizeof sa;
@@ -36,20 +36,18 @@ static void process_accept(int ss) {
     if (!need_address_redirection) {
 	inet_aton(connect_ip, &da.sin_addr);
     }
+    
+    memset(&ca, 0, sizeof ca);
+    ca.sin_family = PF_INET;
+    ca.sin_port = htons(socks_port);
+    inet_aton(socks_ip, &ca.sin_addr);
 
 
-    /* Now start connecting to the peer */
+    /* Now start connecting to the SOCKS5 server */
 
     int destsocket = socket(PF_INET, SOCK_STREAM, 0);
     if (destsocket == -1) {
 	const char* msg = "Cannot create a socket to destination address.\n";
-
-	if(need_port_redirection || need_address_redirection) {
-	    msg = "Cannot create a socket to destination address.\n"
-		"If you are using REDIRECT feature, you should not connect here directly.\n"
-		"Also check you iptables rule. It should not redirect tcprelay's connections back to tcprelay. Normal example:\n"
-		"\"iptables -t nat -A OUTPUT -p tcp -m owner ! --uid-owner tcpsocks_user -j REDIRECT --to tcpsocks_port\"\n";
-	}
 
 	write(client, msg, strlen(msg));
 	close(client);
@@ -57,7 +55,7 @@ static void process_accept(int ss) {
 	return;
     }
     fcntl(destsocket, F_SETFL, O_NONBLOCK);
-    if (-1 == connect(destsocket, (struct sockaddr *) &da, sizeof da)) {
+    if (-1 == connect(destsocket, (struct sockaddr *) &ca, sizeof ca)) {
 	if (errno != EWOULDBLOCK && errno != EINPROGRESS) {
 	    fprintf(stderr, "Cannot connect a socket to destination address\n");
 	    write(client, "Cannot connect a socket to destination address\n", 58-11);
@@ -78,28 +76,21 @@ static void process_accept(int ss) {
 	return;
     }
 		
-    ev.events = EPOLLOUT | EPOLLONESHOT;
-    ev.data.fd = client;
-    if (epoll_ctl(kdpfd, EPOLL_CTL_ADD, client, &ev) < 0) {
-	write(client, "epoll set insertion error\n", 26);
-	close(client);
-	close(destsocket);
-	return;
-    }
+    /* But not yet adding client socket to epoll */
     
     fdinfo[client].peerfd = destsocket;
-    fdinfo[client].status='|';
+    fdinfo[client].status='C';
     fdinfo[client].address=sa;
     fdinfo[client].writeready=0;
     fdinfo[client].readready=0;
     fdinfo[client].buff=NULL;
     fdinfo[client].debt=0;
-    fdinfo[client].we_should_epoll_for_writes=1;  /* we've already set up epoll above */
+    fdinfo[client].we_should_epoll_for_writes=0;  /* we've already set up epoll above */
     fdinfo[client].we_should_epoll_for_reads=0; /* first we get writing ready, only then start reading peer */
     fdinfo[client].group='c';
     fdinfo[client].total_read = 0;
     fdinfo[destsocket].peerfd = client;
-    fdinfo[destsocket].status='|';
+    fdinfo[destsocket].status='S';
     fdinfo[destsocket].address=da;
     fdinfo[destsocket].writeready=0;
     fdinfo[destsocket].readready=0;
