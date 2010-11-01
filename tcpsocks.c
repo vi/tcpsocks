@@ -86,6 +86,9 @@ static void listen_socket_and_setup_epoll(); // setup main socket to listen (and
 static void close_fd(int fd); // close both fd and peer fd. Clean up debt buffers and fdinfo states.
 static void epoll_update(int fd); // call epoll_ctl for this fd accroding to we_should_epoll_for_* fields.
 static void process_stdin();
+static void process_socks_phase_1(int fd);
+static void process_socks_phase_2(int fd);
+static void process_socks_phase_3(int fd);
 #include "process_read.c"
 #include "process_debt.c"
 #include "process_accept.c"
@@ -94,6 +97,7 @@ static void process_stdin();
 #include "close_fd.c"
 #include "epoll_update.c"
 #include "process_stdin.c"
+#include "process_socks.c"
 
 
 int main(int argc, char *argv[])
@@ -175,6 +179,24 @@ int main(int argc, char *argv[])
 			(fdinfo[fd].status=='|' || fdinfo[fd].status=='s') ) {
 
 		    process_debt(fd);
+		}
+		
+		if(fdinfo[fd].readready && 
+			(fdinfo[fd].status=='S') ) {
+
+		    process_socks_phase_1(fd);
+		}
+		
+		if(fdinfo[fd].readready && 
+			(fdinfo[fd].status=='0') ) {
+
+		    process_socks_phase_2(fd);
+		}
+		
+		if(fdinfo[fd].readready && 
+			(fdinfo[fd].status=='1') ) {
+
+		    process_socks_phase_3(fd);
 		}
 	    }
 	} 
