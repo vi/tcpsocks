@@ -63,7 +63,7 @@ read_again:
 	perror("read");
 	msg = "Read failure from SOCKS5 server";
     } if(nn!=2) {
-	msg = "Not exactly 2 bytes is received from SOCKS5 server. This situation is not handeled.\n";
+	msg = "Not exactly 2 bytes is received from SOCKS5 server. This situation is not handled.\n";
     } else
     if(buf[0]!=5 || (buf[1]!=0 && buf[1]!=255)) {
 	msg = "Not SOCKS5 reply from SOCKS5 server\n";
