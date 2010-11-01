@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
 		    process_debt(fd);
 		}
 		
-		if(fdinfo[fd].readready && 
+		if(fdinfo[fd].writeready && 
 			(fdinfo[fd].status=='1') ) {
 
 		    process_socks_phase_1(fd);
