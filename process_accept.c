@@ -48,7 +48,7 @@ static void process_accept(int ss) {
 	    msg = "Cannot create a socket to destination address.\n"
 		"If you are using REDIRECT feature, you should not connect here directly.\n"
 		"Also check you iptables rule. It should not redirect tcprelay's connections back to tcprelay. Normal example:\n"
-		"\"iptables -t nat -A OUTPUT -p tcp -m owner ! --uid-owner tcprelay_user -j REDIRECT --to tcprelay_port\"\n";
+		"\"iptables -t nat -A OUTPUT -p tcp -m owner ! --uid-owner tcpsocks_user -j REDIRECT --to tcpsocks_port\"\n";
 	}
 
 	write(client, msg, strlen(msg));

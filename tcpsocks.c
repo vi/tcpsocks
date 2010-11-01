@@ -1,4 +1,4 @@
-/* Simple Linux epoll-based single thread TCP relay. Public domain. Written by Vitaly "_Vi" Shukela.*/
+/* Simple Linux epoll-based single thread SOCKS5 client. LGPL. Written by Vitaly "_Vi" Shukela.*/
 
 /* We are not using EPOLLET, but use EPOLLONESHOT.
  * We store we_should_epoll_for_{reads,writes} and EPOLL_CTL_MODding almost every time we do something.
@@ -62,6 +62,11 @@ const char *bind_ip;
 int bind_port;
 const char *connect_ip;
 int connect_port;
+const char* socks_ip;
+int socks_port;
+const char* socks_user;
+const char* socks_password;
+int need_password;
 
 int need_address_redirection;
 int need_port_redirection;
