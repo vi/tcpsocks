@@ -1,7 +1,11 @@
+#include "VERSION"
+
 static void parse_argv(int argc, char* argv[]) {
     if (argc != 7 && argc != 9) {
 	printf
-	    ("Usage: tcpsocks 0.0.0.0 1236 REDIRECT REDIRECT 127.0.0.1 1080 [username password]\n"
+	    (
+	     "tcpsocks version " VERSION "\n"
+	     "Usage: tcpsocks 0.0.0.0 1236 REDIRECT REDIRECT 127.0.0.1 1080 [username password]\n"
 	     "                bind_ip port destination_ip destination_port socks_ip socks_port socks_username socks_password\n\n"
 	     "If you specify REDIRECT as destination address or port, I will get addresses using SO_ORIGINAL_DST and tell it to SOCKS server\n"
 	     "(useful with \"iptables -t nat ... -j REDIRECT\")\n"

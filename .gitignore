@@ -2,3 +2,6 @@
 tcpsocks
 .*.swp
 ~*
+VERSION
+*.deb
+*.tgz
