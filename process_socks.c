@@ -1,5 +1,6 @@
 
 static void process_socks_phase_1(int fd) {
+    dpf("process_socks_phase_1\n");
     if (!need_password) {
 	char socks_connect_request[3 + 4 + 4 + 2];	/* Noauth method offer + connect command + IP address + port */
 	memcpy(socks_connect_request,  "\x5\x1\x0"       "\x5\x1\x0\x1"    "XXXX"       "XX" , 3+4+4+2);
@@ -45,6 +46,7 @@ send_again:
 }
 
 static void process_socks_phase_2(int fd) {
+    dpf("process_socks_phase_2\n");
     char buf[2];
     memset(buf, 0, sizeof buf);
     const char* msg = NULL;
@@ -84,6 +86,7 @@ read_again:
 }
 
 static void process_socks_phase_3(int fd) {
+    dpf("process_socks_phase_3\n");
     char buf[10];
     memset(buf, 0, sizeof buf);
     int nn;
