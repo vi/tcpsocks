@@ -1,48 +1,71 @@
 
 static void process_socks_phase_1(int fd) {
     dpf("process_socks_phase_1\n");
+    char socks_connect_request[1024]; // To be sure it can handly anything we need
+    int len;
     if (!need_password) {
-	char socks_connect_request[3 + 4 + 4 + 2];	/* Noauth method offer + connect command + IP address + port */
 	memcpy(socks_connect_request,  "\x5\x1\x0"       "\x5\x1\x0\x1"    "XXXX"       "XX" , 3+4+4+2);
 	/*                                      |              |     |         |          |
 					      no auth        connect |        IP address  |
 								    IPv4                 port	*/
 	memcpy(socks_connect_request+3+4   , &fdinfo[fd].address.sin_addr,4);
 	memcpy(socks_connect_request+3+4+4 , &fdinfo[fd].address.sin_port,2);
+	len = 3+4+4+2;
+    } else {
+	unsigned char username_len, password_len;
+	memcpy(socks_connect_request,  "\x5\x1\x2"                      "\x1X", 3+2);
+	/*                                      |                           |
+	 *                                   username/password auth        username_length
+	 *                                   */   
+	username_len =  strlen(socks_user);
+	len = 3;
+	memcpy(socks_connect_request+len+1,                     &username_len, 1);
+	memcpy(socks_connect_request+len+2,        socks_user, username_len);
+	len += 1 + 1 + username_len;
 
-	int ret;
-	const char* msg;
-send_again:
-	ret = send(fd, socks_connect_request, 3+4+4+2, 0);
-	if (ret == -1) {
-	    if(errno==EINTR) goto send_again;
-	    if(errno==EAGAIN) {
-		dpf("    eagain\n");
-		fdinfo[fd].we_should_epoll_for_writes=1;
-		epoll_update(fd);
-		return;
-	    }
-	    perror("send");
-	    msg = "Cannot connect to SOCKS5 server";
-	} else
-	if (ret != 3+4+4+2) {
-	    if(ret==-1) {
-		msg = "Cannot connect to SOCKS5 server.\n";
-	    } else {
-		msg = "Short write to SOCKS5 server.\n";
-	    }
-	}
-
-	if (msg) {
-	    send(fd, msg, strlen(msg),0);
-	    fprintf(stderr, "%s", msg);
-	    close_fd(fd);
-	}
-
-	fdinfo[fd].status='2';
-	fdinfo[fd].we_should_epoll_for_reads=1;
-	epoll_update(fd);
+	password_len   =  strlen(socks_password);
+	memcpy(socks_connect_request+len,          &password_len, 1);
+	memcpy(socks_connect_request+len+1,        socks_password, password_len);
+	len += 1 + password_len;
+	
+	memcpy(socks_connect_request+len,   "\x5\x1\x0\x1", 4);
+	memcpy(socks_connect_request+len+4,  &fdinfo[fd].address.sin_addr, 4);
+	memcpy(socks_connect_request+len+4+4,  &fdinfo[fd].address.sin_port, 2);
+	len += 4+4+2;
     }
+
+    int ret;
+    const char* msg;
+send_again:
+    ret = send(fd, socks_connect_request, len, 0);
+    if (ret == -1) {
+	if(errno==EINTR) goto send_again;
+	if(errno==EAGAIN) {
+	    dpf("    eagain\n");
+	    fdinfo[fd].we_should_epoll_for_writes=1;
+	    epoll_update(fd);
+	    return;
+	}
+	perror("send");
+	msg = "Cannot connect to SOCKS5 server";
+    } else
+    if (ret != len) {
+	if(ret==-1) {
+	    msg = "Cannot connect to SOCKS5 server.\n";
+	} else {
+	    msg = "Short write to SOCKS5 server.\n";
+	}
+    }
+
+    if (msg) {
+	send(fd, msg, strlen(msg),0);
+	fprintf(stderr, "%s", msg);
+	close_fd(fd);
+    }
+
+    fdinfo[fd].status='2';
+    fdinfo[fd].we_should_epoll_for_reads=1;
+    epoll_update(fd);
 }
 
 static void process_socks_phase_2(int fd) {
