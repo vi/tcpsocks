@@ -162,8 +162,10 @@ int main(int argc, char *argv[])
 		    fdinfo[fd].we_should_epoll_for_writes=0; /* as it is one shot event */
                     epoll_update(fd);
 
-		    fdinfo[fdinfo[fd].peerfd].we_should_epoll_for_reads = 1;
-                    epoll_update(fdinfo[fd].peerfd);
+		    if (fdinfo[fd].status == '|' || fdinfo[fd].status == 's') {
+			fdinfo[fdinfo[fd].peerfd].we_should_epoll_for_reads = 1;
+			epoll_update(fdinfo[fd].peerfd);
+		    }
 		}           
 		if (ev & EPOLLIN) {
 		    dpf("%d becomes ready for reading\n", fd);
