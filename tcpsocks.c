@@ -21,12 +21,25 @@
 #include <sys/socket.h>
 #include <string.h>
 #include <netinet/in.h>
+#include <stdarg.h>
 
 #define MAXFD 1024		/* Not checked for overflow anywhere */
 #define BUFSIZE 65536
 #define MAX_EPOLL_EVENTS_AT_ONCE 1024 /* even 1 should work more-or-less fine */
 
-#define dpf(...) //fprintf (stderr, __VA_ARGS__)
+static int debug_output;
+
+void dpf(const char *fmt, ...) {
+    if (!debug_output) {
+	return;
+    }
+
+    va_list argp;
+    va_start(argp, fmt);
+    vfprintf(stderr, fmt, argp);
+    va_end(argp);
+}
+
 
 struct {
     int peerfd; // where we connected by client's request (and vice versa). You'll see fdinfo[fd].peerfd frequently in the code.

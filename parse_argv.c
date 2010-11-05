@@ -1,6 +1,12 @@
 #include "VERSION"
 
 static void parse_argv(int argc, char* argv[]) {
+    if (getenv("DEBUG")) {
+	debug_output = 1;
+    } else {
+	debug_output = 0;
+    }
+
     if (argc != 7 && argc != 9) {
 	printf
 	    (
