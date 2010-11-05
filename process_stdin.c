@@ -44,9 +44,12 @@ static void process_stdin() {
 		close_fd(atoi(arg));
 	    }
 	    break;
+	case 'D':
+	    debug_output = !debug_output;
+	    break;
 	case '\0':
 	    break;
 	default:
-	    printf("Commands: quit list kill\n");
+	    printf("Commands: quit list kill Debug\n");
     }
 }
