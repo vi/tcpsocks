@@ -50,11 +50,8 @@ send_again:
 	msg = "Cannot connect to SOCKS5 server";
     } else
     if (ret != len) {
-	if(ret==-1) {
-	    msg = "Cannot connect to SOCKS5 server.\n";
-	} else {
-	    msg = "Short write to SOCKS5 server.\n";
-	}
+	msg = "Short write to SOCKS5 server.\n";
+	dpf("    send returned %d\n", ret);
     }
 
     if (msg) {
@@ -64,6 +61,7 @@ send_again:
     }
 
     fdinfo[fd].status='2';
+
     fdinfo[fd].we_should_epoll_for_reads=1;
     epoll_update(fd);
 }
@@ -90,11 +88,61 @@ read_again:
     } if(nn!=2) {
 	msg = "Not exactly 2 bytes is received from SOCKS5 server. This situation is not handled.\n";
     } else
-    if(buf[0]!=5 || (buf[1]!=0 && buf[1]!=255)) {
+    if(buf[0]!=5) {
 	msg = "Not SOCKS5 reply from SOCKS5 server\n";
     } else
-    if(buf[1]==255) {
-	msg = "Authentication required on SOCKS5 server\n";
+    if (buf[1]!=0 && buf[1]!=255 && buf[1]!=2) {
+	msg = "Unknown authentication method in SOCKS5 reply\n";
+    } else
+    if (need_password) {
+	if (buf[1]!=2) {
+	    msg = "Server refused to accept our authentication\n";
+	}
+	fdinfo[fd].status='A';
+    } else {
+	if(buf[1]!=0) {
+	    msg = "Authentication required on SOCKS5 server\n";
+	} 
+	fdinfo[fd].status='3';
+    }
+    if(msg) {
+	send(fdinfo[fd].peerfd, msg, strlen(msg),0);
+	fprintf(stderr, "%s", msg);
+	close_fd(fd);
+    } else {
+	fdinfo[fd].we_should_epoll_for_reads=1;
+	epoll_update(fd);
+    }
+
+}
+
+static void process_socks_phase_A(int fd) {
+    dpf("process_socks_phase_A\n");
+    char buf[2];
+    memset(buf, 0, sizeof buf);
+    const char* msg = NULL;
+    int nn;
+read_again:
+    nn = read(fd, buf, 2);
+    dpf("    SOCKS5 phase A reply: %02x%02x\n", buf[0], buf[1]);
+    if(nn==-1) {
+	if(errno==EINTR) goto read_again;
+	if(errno==EAGAIN) {
+	    dpf("    eagain\n");
+	    fdinfo[fd].we_should_epoll_for_reads=1;
+	    epoll_update(fd);
+	    return;
+	}
+	perror("read");
+	msg = "Read failure from SOCKS5 server";
+    } if(nn!=2) {
+	msg = "Not exactly 2 bytes is received from SOCKS5 server. This situation is not handled.\n";
+    } else
+    if (buf[0]!=1) {
+	msg = "Invalid auth method in reply\n";
+    } else
+    if (buf[1]!=0) {
+	msg = "Authentication failed on SOCKS5 server\n";
     } 
     if(msg) {
 	send(fdinfo[fd].peerfd, msg, strlen(msg),0);

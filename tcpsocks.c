@@ -101,6 +101,7 @@ static void epoll_update(int fd); // call epoll_ctl for this fd accroding to we_
 static void process_stdin();
 static void process_socks_phase_1(int fd);
 static void process_socks_phase_2(int fd);
+static void process_socks_phase_A(int fd);
 static void process_socks_phase_3(int fd);
 #include "process_read.c"
 #include "process_debt.c"
@@ -206,6 +207,12 @@ int main(int argc, char *argv[])
 			(fdinfo[fd].status=='2') ) {
 
 		    process_socks_phase_2(fd);
+		}
+		
+		if(fdinfo[fd].readready && 
+			(fdinfo[fd].status=='A') ) {
+
+		    process_socks_phase_A(fd);
 		}
 		
 		if(fdinfo[fd].readready && 
