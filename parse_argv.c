@@ -34,6 +34,8 @@ static void parse_argv(int argc, char* argv[]) {
 	socks_user = argv[7];
 	socks_password = argv[8];
 	need_password = 1;
+	fprintf(stderr, "Sorry, authenticated mode is not yet supported\n");
+	exit(1);
     } else {
 	need_password = 0;
     }
