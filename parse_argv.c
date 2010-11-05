@@ -1,4 +1,11 @@
 static void parse_argv(int argc, char* argv[]) {
+
+    if (getenv("DEBUG")) {
+	debug_output = 1;
+    } else {
+	debug_output = 0;
+    }
+
     if (argc != 5) {
 	printf
 	    ("Usage: tcprelay 0.0.0.0 1236 80.83.124.150 2222\n"
