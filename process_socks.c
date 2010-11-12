@@ -177,7 +177,7 @@ recv_again:
 	msg = "Read failure from SOCKS5 server";
     } else
     if(nn!=10) {
-	msg = "Not exactly 10 bytes is received from SOCKS5 server. This situation is not handeled.\n";
+	msg = "Not exactly 10 bytes is received from SOCKS5 server. This situation is not handled.\n";
     } else
     if(buf[0]!=5) {
 	msg = "Not SOCKS5 reply from SOCKS5 server [phase 3]\n";
