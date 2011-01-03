@@ -1,2 +1,4 @@
 Simple Linux epoll-based single thread SOCKS5 client.
 Supports getting destination address with SO_ORIGINAL_DST (to use with "-j REDIRECT" iptables target) and telling this address to SOCKS server.
+
+Author page: http://vi-server.org/
