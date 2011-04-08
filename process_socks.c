@@ -55,7 +55,7 @@ send_again:
 
     if (msg) {
 	send(fdinfo[fd].peerfd, msg, strlen(msg),0);
-	fprintf(stderr, "%s", msg);
+	fprintf(stdout, "%s", msg);
 	close_fd(fd);
 	return;
     }
@@ -115,7 +115,7 @@ read_again:
     }
     if(msg) {
 	send(fdinfo[fd].peerfd, msg, strlen(msg),0);
-	fprintf(stderr, "%s", msg);
+	fprintf(stdout, "%s", msg);
 	close_fd(fd);
     } else {
 	fdinfo[fd].we_should_epoll_for_reads=1;
@@ -158,7 +158,7 @@ read_again:
     } 
     if(msg) {
 	send(fdinfo[fd].peerfd, msg, strlen(msg),0);
-	fprintf(stderr, "%s", msg);
+	fprintf(stdout, "%s", msg);
 	close_fd(fd);
     } else {
 	fdinfo[fd].status='3';
@@ -214,14 +214,23 @@ recv_again:
 	msg = "tcpsocks: Not exactly 10 bytes is received from SOCKS5 server [phase 3]\n";
     }
     
+    printf("    %s:%d -> ", 
+	    inet_ntoa(fdinfo[fdinfo[fd].peerfd].address.sin_addr), 
+	        ntohs(fdinfo[fdinfo[fd].peerfd].address.sin_port));
+    printf("%s:%d [%d->%d] ",  inet_ntoa(fdinfo[fd].address.sin_addr), ntohs(fdinfo[fd].address.sin_port), 
+	    fdinfo[fd].peerfd, fd); 
+
     if(msg) {
 	send(fdinfo[fd].peerfd, msg, strlen(msg),0);
-	fprintf(stderr, "%s", msg);
+	fprintf(stdout, "%s", msg);
 	close_fd(fd);
 	return;
     } 
 
+    printf("Started \n"); /* otherwise \n is printed by error message */
+
     /* SOCKS5 connection successed. Setting up piping. */
+
     int peerfd = fdinfo[fd].peerfd;
     fdinfo[fd].status='|';
     fdinfo[peerfd].status='|';
