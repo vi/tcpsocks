@@ -101,7 +101,5 @@ static void process_accept(int ss) {
     fdinfo[destsocket].group='d';
     fdinfo[destsocket].total_read = 0;
     
-    printf("%s:%d -> ", inet_ntoa(sa.sin_addr), ntohs(sa.sin_port));
-    printf("%s:%d [%d->%d]\n",  inet_ntoa(da.sin_addr), ntohs(da.sin_port), client, destsocket); 
-
+    print_connection(client, "", "\n");
 }

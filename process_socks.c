@@ -214,11 +214,7 @@ recv_again:
 	msg = "tcpsocks: Not exactly 10 bytes is received from SOCKS5 server [phase 3]\n";
     }
     
-    printf("    %s:%d -> ", 
-	    inet_ntoa(fdinfo[fdinfo[fd].peerfd].address.sin_addr), 
-	        ntohs(fdinfo[fdinfo[fd].peerfd].address.sin_port));
-    printf("%s:%d [%d->%d] ",  inet_ntoa(fdinfo[fd].address.sin_addr), ntohs(fdinfo[fd].address.sin_port), 
-	    fdinfo[fd].peerfd, fd); 
+    print_connection(fd, "    ", " ");
 
     if(msg) {
 	send(fdinfo[fd].peerfd, msg, strlen(msg),0);
