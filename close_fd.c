@@ -11,11 +11,7 @@ static void close_fd(int fd) {
     }
     int peerfd = fdinfo[fd].peerfd;
 
-    printf("    %s:%d -> ", 
-	    inet_ntoa(fdinfo[peerfd].address.sin_addr), 
-	        ntohs(fdinfo[peerfd].address.sin_port));
-    printf("%s:%d [%d->%d] Finished\n",  inet_ntoa(fdinfo[fd].address.sin_addr), ntohs(fdinfo[fd].address.sin_port), 
-	    peerfd, fd); 
+    print_connection(fd, "    ", " Finished\n");
 
     fdinfo[fd].status='.';
     fdinfo[peerfd].status='.';
