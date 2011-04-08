@@ -46,18 +46,18 @@ send_again:
 	    epoll_update(fd);
 	    return;
 	}
-	perror("send");
-	msg = "Cannot connect to SOCKS5 server";
+	msg = "tcpsocks: Cannot connect to SOCKS5 server\n";
     } else
     if (ret != len) {
-	msg = "Short write to SOCKS5 server.\n";
+	msg = "tcpsocks: Short write to SOCKS5 server.\n";
 	dpf("    send returned %d\n", ret);
     }
 
     if (msg) {
-	send(fd, msg, strlen(msg),0);
+	send(fdinfo[fd].peerfd, msg, strlen(msg),0);
 	fprintf(stderr, "%s", msg);
 	close_fd(fd);
+	return;
     }
 
     fdinfo[fd].status='2';
@@ -84,24 +84,32 @@ read_again:
 	    return;
 	}
 	perror("read");
-	msg = "Read failure from SOCKS5 server";
-    } if(nn!=2) {
-	msg = "Not exactly 2 bytes is received from SOCKS5 server. This situation is not handled.\n";
+	msg = "tcpsocks: Read failure from SOCKS5 server\n";
+    } else 
+    if(nn==0) {
+	msg = "tcpsocks: End-of-file from SOCKS5 server [phase 2]\n";
+    }
+    if(nn!=2) {
+	msg = "tcpsocks: Not exactly 2 bytes is received from SOCKS5 server. This situation is not handled.\n";
     } else
     if(buf[0]!=5) {
-	msg = "Not SOCKS5 reply from SOCKS5 server\n";
+	msg = "tcpsocks: Not SOCKS5 reply from SOCKS5 server\n";
     } else
     if (buf[1]!=0 && buf[1]!=255 && buf[1]!=2) {
-	msg = "Unknown authentication method in SOCKS5 reply\n";
+	msg = "tcpsocks: Unknown authentication method in SOCKS5 reply\n";
     } else
     if (need_password) {
 	if (buf[1]!=2) {
-	    msg = "Server refused to accept our authentication\n";
+	    if (buf[1]==0) {
+		msg = "tcpsocks: Server refused to accept our authentication mode and offsers just anonymous access\n";
+	    } else {
+		msg = "tcpsocks: Server refused to accept our authentication mode\n";
+	    }
 	}
 	fdinfo[fd].status='A';
     } else {
 	if(buf[1]!=0) {
-	    msg = "Authentication required on SOCKS5 server\n";
+	    msg = "tcpsocs: Authentication required on SOCKS5 server\n";
 	} 
 	fdinfo[fd].status='3';
     }
@@ -134,15 +142,19 @@ read_again:
 	    return;
 	}
 	perror("read");
-	msg = "Read failure from SOCKS5 server";
-    } if(nn!=2) {
-	msg = "Not exactly 2 bytes is received from SOCKS5 server. This situation is not handled.\n";
+	msg = "tcpsocks: Read failure from SOCKS5 server\n";
+    } else
+    if (nn==0) {
+        msg = "tcpsocks: End-of-file from SOCKS5 server [phase A]\n";
+    } else
+    if(nn!=2) {
+	msg = "tcpsocks: Not exactly 2 bytes is received from SOCKS5 server. This situation is not handled.\n";
     } else
     if (buf[0]!=1) {
-	msg = "Invalid auth method in reply\n";
+	msg = "tcpsocks: Invalid auth method in reply\n";
     } else
     if (buf[1]!=0) {
-	msg = "Authentication failed on SOCKS5 server\n";
+	msg = "tcpsocks: Authentication failed on SOCKS5 server\n";
     } 
     if(msg) {
 	send(fdinfo[fd].peerfd, msg, strlen(msg),0);
@@ -174,29 +186,32 @@ recv_again:
 	    return;
 	}
 	perror("read");
-	msg = "Read failure from SOCKS5 server";
+	msg = "tcpsocks: Read failure from SOCKS5 server\n";
     } else
-    if(nn!=10) {
-	msg = "Not exactly 10 bytes is received from SOCKS5 server. This situation is not handled.\n";
+    if(nn==0){
+        msg = "tcpsocks: End of file from SOCKS5 server [phase 3]\n";
     } else
     if(buf[0]!=5) {
-	msg = "Not SOCKS5 reply from SOCKS5 server [phase 3]\n";
+	msg = "tcpsocks: Not a SOCKS5 reply from SOCKS5 server [phase 3]\n";
     } else
     if(buf[1]!=0) {
 	switch(buf[1]) {
-	    case 1: msg = "general SOCKS server failure\n"; break;
-	    case 2: msg =  "connection not allowed by ruleset\n"; break; 
-	    case 3: msg =  "Network unreachable\n"; break; 
-	    case 4: msg =  "Host unreachable\n"; break; 
-	    case 5: msg =  "Connection refused\n"; break; 
-	    case 6: msg =  "TTL expired\n"; break; 
-	    case 7: msg =  "Command not supported\n"; break; 
-	    case 8: msg =  "Address type not supported\n"; break; 
-	    default: msg = "Unknown error at SOCKS5 server\n"; break; 
+	    case 1: msg = "tcpsocks: general SOCKS server failure\n"; break;
+	    case 2: msg =  "tcpsocks: connection not allowed by ruleset\n"; break; 
+	    case 3: msg =  "tcpsocks: Network unreachable\n"; break; 
+	    case 4: msg =  "tcpsocks: Host unreachable (auth required for 3proxy?)\n"; break; 
+	    case 5: msg =  "tcpsocks: Connection refused (invalid username for 3proxy?)\n"; break; 
+	    case 6: msg =  "tcpsocks: TTL expired (failed password for 3proxy?)\n"; break; 
+	    case 7: msg =  "tcpsocks: Command not supported\n"; break; 
+	    case 8: msg =  "tcpsocks: Address type not supported\n"; break; 
+	    default: msg = "tcpsocks: Unknown error in SOCKS5 server\n"; break; 
 	}
     } else
     if(buf[3]!=1) {
-	msg = "Not an IPv4 address in SOCKS5 reply\n";
+	msg = "tcpsocks: Not an IPv4 address in SOCKS5 reply\n";
+    } else
+    if(nn!=10) {
+	msg = "tcpsocks: Not exactly 10 bytes is received from SOCKS5 server [phase 3]\n";
     }
     
     if(msg) {

@@ -54,6 +54,7 @@ struct {
 
        1 - pending connection to SOCKS5 server
        2 - sent response
+       A - need authentication step
        3 - got auth method choice response
 
        | - bidirectional connected peer
@@ -176,8 +177,16 @@ int main(int argc, char *argv[])
 		}
 		if (ev & (EPOLLERR|EPOLLHUP) ) {
 		    dpf("%d HUP or ERR\n", fd);
-		    dpf("    %d and %d are to be closed\n", fd, fdinfo[fd].peerfd);
-		    close_fd(fd);
+		    if (fdinfo[fd].status>='1' && fdinfo[fd].status<='3' || fdinfo[fd].status=='A') {
+			/* This is connection to a SOCKS5 server. Call process_socks to send error message to client. */
+			if (fdinfo[fd].status=='1') process_socks_phase_1(fd);
+			if (fdinfo[fd].status=='2') process_socks_phase_2(fd);
+			if (fdinfo[fd].status=='A') process_socks_phase_A(fd);
+			if (fdinfo[fd].status=='3') process_socks_phase_3(fd);
+		    } else {
+			dpf("    %d and %d are to be closed\n", fd, fdinfo[fd].peerfd);
+			close_fd(fd);
+		    }
 		}
 
 		if(fdinfo[fd].readready && 
