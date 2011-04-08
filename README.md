@@ -1,7 +1,8 @@
 Simple Linux epoll-based single thread SOCKS5 client.
-Supports getting destination address with SO_ORIGINAL_DST (to use with "-j REDIRECT" iptables target) and telling this address to SOCKS server.
+Supports getting destination address with SO_ORIGINAL_DST (for use with `-j REDIRECT` iptables target) and telling that address to SOCKS server.
 
-Author page: http://vi-server.org/
+Author page: [http://vi-server.org/]
+
 Alternative, more complete libevent-based implementation: [redsocks](https://github.com/darkk/redsocks)
 
 Example setup:
@@ -35,6 +36,9 @@ Example setup:
     l
 
 tcpsocks allow interactive control of connections: you can list then and kill (by specifying fd). When listing, it prints uploaded/downloaded bytes for each connection.
+
+tcpsocks does not require configuration expect of command line parameters.
+
 You can't limit connection speed, use [tcplim](https://github.com/vi/tcplim) for this.
 
 
