@@ -1,5 +1,6 @@
+#include "main.h"
 
-static void process_accept(int ss) {
+void process_accept(int ss) {
     /* Accepting the client socket */
     struct sockaddr_in sa, da; 
     struct epoll_event ev;

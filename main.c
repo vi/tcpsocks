@@ -10,66 +10,14 @@
  * It also supports retrieving destination address with SO_ORIGINAL_DST
  */
 
-#include <stdio.h>
-#include <sys/epoll.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <string.h>
-#include <netinet/in.h>
-#include <stdarg.h>
-
-#define MAXFD 1024		/* Not checked for overflow anywhere */
-#define BUFSIZE 65536
-#define MAX_EPOLL_EVENTS_AT_ONCE 1024 /* even 1 should work more-or-less fine */
-
-static int debug_output;
-
-void dpf(const char *fmt, ...) {
-    if (!debug_output) {
-	return;
-    }
-
-    va_list argp;
-    va_start(argp, fmt);
-    vfprintf(stderr, fmt, argp);
-    va_end(argp);
-}
+#include "main.h"
 
 
-struct {
-    int peerfd; // where we connected by client's request (and vice versa). You'll see fdinfo[fd].peerfd frequently in the code.
-    char writeready;  // epoll said that we can write here
-    char readready;   // epoll said that we can read from here
-    char we_should_epoll_for_reads;
-    char we_should_epoll_for_writes;
-    char status; 
-    /*
-       States:
-       | - bidirectional connected peer
-       s - we can only send (half-shutdown)
-       r - we can only recv (half-shutdown)
-       . - closed
-     */   
-    char group;
-    /*
-	Groups:
-	c - incoming connection
-	d - outgoing connection
-     */
-    struct sockaddr_in address;
-    char* buff; // "inbox", allocated only in case of a short write to this socket.
-    int debt; // length of buff.
-    long long total_read;
-} static fdinfo[MAXFD] = { [0 ... MAXFD - 1] = {0, 0, 0}};
+struct fdinfo_t fdinfo[MAXFD] = { [0 ... MAXFD - 1] = {0, 0, 0}};
 
-
-static int kdpfd; /* epoll fd */
-static int ss; /* server socket */
+int debug_output;
+int kdpfd; /* epoll fd */
+int ss; /* server socket */
     
 const char *bind_ip;
 int bind_port;
@@ -78,26 +26,6 @@ int connect_port;
 
 int need_address_redirection;
 int need_port_redirection;
-
-
-static void parse_argv(int argc, char* argv[]); 
-static void process_read(int fd);  // we are both able to read from fd and write to fdinfo[fd].peerfd
-static void process_debt(int fd);  // previous process_read to peer fd had problems (short/missing write to this fd). Now we can finish it.
-static void process_accept(int ss); // new client connects. Need to connect to the peer, set up epoll, setup fdinfo.
-static void listen_socket_and_setup_epoll(); // setup main socket to listen (and add it to epoll)
-static void close_fd(int fd); // close both fd and peer fd. Clean up debt buffers and fdinfo states.
-static void epoll_update(int fd); // call epoll_ctl for this fd accroding to we_should_epoll_for_* fields.
-static void print_connection(int fd, const char* prologue, const char* epilogue);
-static void process_stdin();
-#include "process_read.c"
-#include "process_debt.c"
-#include "process_accept.c"
-#include "parse_argv.c"
-#include "listen_socket_and_setup_epoll.c"
-#include "close_fd.c"
-#include "epoll_update.c"
-#include "process_stdin.c"
-
 
 int main(int argc, char *argv[])
 {
@@ -185,3 +113,4 @@ int main(int argc, char *argv[])
 
     fprintf(stderr, "Probably abnormal termination\n");
 }
+

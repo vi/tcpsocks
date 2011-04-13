@@ -1,5 +1,6 @@
+#include "main.h"
 
-static void process_read(int fd) {
+void process_read(int fd) {
     dpf("Selecting %d for reading. Peer is %d.\n", fd, fdinfo[fd].peerfd);
     char buf[BUFSIZE];
     ssize_t ret, ret2;

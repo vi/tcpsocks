@@ -1,5 +1,6 @@
+#include "main.h"
 
-static void listen_socket_and_setup_epoll() {
+void listen_socket_and_setup_epoll() {
     /* Open the server side socket */
     ss = socket(PF_INET, SOCK_STREAM, 0);
     if (ss == -1) {

@@ -1,4 +1,6 @@
-static void parse_argv(int argc, char* argv[]) {
+#include "main.h"
+
+void parse_argv(int argc, char* argv[]) {
 
     if (getenv("DEBUG")) {
 	debug_output = 1;

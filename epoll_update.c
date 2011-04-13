@@ -1,13 +1,14 @@
+#include "main.h"
 
 /* These are debug messages */
-static const char* __attribute__((unused)) epoll_update_msgs[] = {
+const char* __attribute__((unused)) epoll_update_msgs[] = {
     "    setting up %d to listen only for error events\n",
     "    setting up %d to listen for read events\n",
     "    setting up %d to listen for write events\n",
     "    setting up %d to listen for read and write events\n"};
 
 
-static void epoll_update(int fd) {
+void epoll_update(int fd) {
     struct epoll_event ev;
     memset(&ev, 0, sizeof ev);
     ev.events = EPOLLONESHOT;
