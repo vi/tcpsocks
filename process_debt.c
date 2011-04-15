@@ -1,3 +1,4 @@
+#include "main.h"
 
 /* TODO: too many common code with process_read */
 

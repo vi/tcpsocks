@@ -1,5 +1,6 @@
+#include "main.h"
 
-static void process_socks_phase_1(int fd) {
+void process_socks_phase_1(int fd) {
     dpf("process_socks_phase_1\n");
     char socks_connect_request[1024]; // To be sure it can handly anything we need
     int len;
@@ -66,7 +67,7 @@ send_again:
     epoll_update(fd);
 }
 
-static void process_socks_phase_2(int fd) {
+void process_socks_phase_2(int fd) {
     dpf("process_socks_phase_2\n");
     char buf[2];
     memset(buf, 0, sizeof buf);
@@ -124,7 +125,7 @@ read_again:
 
 }
 
-static void process_socks_phase_A(int fd) {
+void process_socks_phase_A(int fd) {
     dpf("process_socks_phase_A\n");
     char buf[2];
     memset(buf, 0, sizeof buf);
@@ -168,7 +169,7 @@ read_again:
 
 }
 
-static void process_socks_phase_3(int fd) {
+void process_socks_phase_3(int fd) {
     dpf("process_socks_phase_3\n");
     char buf[10];
     memset(buf, 0, sizeof buf);
