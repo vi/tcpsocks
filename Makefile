@@ -1,7 +1,7 @@
 all: tcpsocks
 
 tcpsocks: *.c VERSION
-		gcc -O2 tcpsocks.c -o tcpsocks
+		gcc -O2 main.c -o tcpsocks
 
 githead=$(wildcard .git/HEAD)
 
