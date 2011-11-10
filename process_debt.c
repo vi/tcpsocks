@@ -41,6 +41,10 @@ send_was_interrupted2:
 	    free(fdinfo[fd].buff);
 	    fdinfo[fd].buff = b;
 	    fdinfo[fd].debt = l;
+        
+	    fdinfo[fd].we_should_epoll_for_writes=1;
+	    epoll_update(fd);
+
 	    dpf("    re-stored debt %d for %d\n", l, fd);
 	} else {
 	    /* Now the debt is fulfilled */
