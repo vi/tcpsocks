@@ -36,7 +36,7 @@ void process_socks_phase_1(int fd) {
     }
 
     int ret;
-    const char* msg;
+    const char* msg = NULL;
 send_again:
     ret = send(fd, socks_connect_request, len, 0);
     if (ret == -1) {
