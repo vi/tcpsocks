@@ -13,6 +13,7 @@
 #include <string.h>
 #include <netinet/in.h>
 #include <stdarg.h>
+#include <signal.h>
 
 #define MAXFD 1024		/* Not checked for overflow anywhere */
 #define BUFSIZE 65536
