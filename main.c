@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
 		}
 		if (ev & (EPOLLERR|EPOLLHUP) ) {
 		    dpf("%d HUP or ERR\n", fd);
-		    if (fdinfo[fd].status>='1' && fdinfo[fd].status<='3' || fdinfo[fd].status=='A') {
+		    if ((fdinfo[fd].status>='1' && fdinfo[fd].status<='3') || fdinfo[fd].status=='A') {
 			/* This is connection to a SOCKS5 server. Call process_socks to send error message to client. */
 			if (fdinfo[fd].status=='1') process_socks_phase_1(fd);
 			if (fdinfo[fd].status=='2') process_socks_phase_2(fd);

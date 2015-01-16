@@ -5,13 +5,18 @@ void process_accept(int ss) {
     struct sockaddr_in sa, da, ca; 
     struct epoll_event ev;
     memset(&ev, 0, sizeof ev);
-    size_t len = sizeof sa;
+    socklen_t len = sizeof sa;
     int client = accept(ss, (struct sockaddr *) &sa, &len);
     if (client < 0) {
 	perror("accept");
 	return;
     }
-    fcntl(client, F_SETFL, O_NONBLOCK);
+    
+    if(fcntl(client, F_SETFL, O_NONBLOCK)==-1) {
+        // Reject the client instead of possibly blocking the entire tcpsocks
+        close(client);
+        return;
+    }
 
     memset(&da, 0, sizeof da);
 #ifndef SO_ORIGINAL_DST
@@ -47,6 +52,7 @@ void process_accept(int ss) {
     /* Now start connecting to the SOCKS5 server */
 
     int destsocket = socket(PF_INET, SOCK_STREAM, 0);
+    if (fcntl(destsocket, F_SETFL, O_NONBLOCK) == -1) { close(destsocket); destsocket = -1; }
     if (destsocket == -1) {
 	const char* msg = "Cannot create a socket to destination address.\n";
 
@@ -55,12 +61,12 @@ void process_accept(int ss) {
 	fprintf(stderr, "%s", msg);
 	return;
     }
-    fcntl(destsocket, F_SETFL, O_NONBLOCK);
     if (-1 == connect(destsocket, (struct sockaddr *) &ca, sizeof ca)) {
 	if (errno != EWOULDBLOCK && errno != EINPROGRESS) {
 	    fprintf(stderr, "Cannot connect a socket to destination address\n");
 	    write(client, "Cannot connect a socket to destination address\n", 58-11);
 	    close(client);
+	    close(destsocket);
 	    return;
 	}
     }

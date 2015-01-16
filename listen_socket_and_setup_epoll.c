@@ -3,6 +3,7 @@
 void listen_socket_and_setup_epoll() {
     /* Open the server side socket */
     ss = socket(PF_INET, SOCK_STREAM, 0);
+    if (fcntl(ss, F_SETFL, O_NONBLOCK) == -1) { close(ss); ss = -1; }
     if (ss == -1) {
 	perror("socket");
 	exit(1);
@@ -10,7 +11,6 @@ void listen_socket_and_setup_epoll() {
 
     int opt = 1;
     setsockopt(ss, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof opt);
-    fcntl(ss, F_SETFL, O_NONBLOCK);
 
     struct sockaddr_in sa;
     memset(&sa, 0, sizeof sa);
