@@ -4,3 +4,19 @@ install:
 - sudo apt-get install -qq socat vim-common
 - make
 script: ./tests.sh
+
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "cRyA5J3UdPbcPXgiN2jovV9O1wph5vcBlASIXO79c7EKd6RD+iOLRhnwHVzfJECviGdx9zJWoGRnsWodFh0TA6G2aOLP5Bjg6uLHezi+vk0ygDTh64cUlkAvOg9AMWub2T2sRfHRSFmFOerTCsivQUMvMPCCr6fTgwxFguVa5oQ="
+
+addons:
+  coverity_scan:
+    project:
+      name: "vi/tcpsocks"
+      description: "Build submitted from Travis-CI"
+    notification_email: vi0oss@gmail.com
+    build_command_prepend: "make clean"
+    build_command:   "make -j4"
+    branch_pattern: coverity_scan
