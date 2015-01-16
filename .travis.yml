@@ -1,4 +1,6 @@
 language: c
 install:
+  # vim-common is for xxd
+- sudo apt-get install -qq socat vim-common
 - make
 script: ./tests.sh
