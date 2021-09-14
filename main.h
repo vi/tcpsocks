@@ -67,8 +67,8 @@ extern struct fdinfo_t {
 } fdinfo[MAXFD];
 
 
-int kdpfd; /* epoll fd */
-int ss; /* server socket */
+extern int kdpfd; /* epoll fd */
+extern int ss; /* server socket */
     
 extern const char *bind_ip;
 extern int bind_port;
